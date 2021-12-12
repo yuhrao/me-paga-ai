@@ -10,6 +10,9 @@ Solução de pagamentos proposta pelo processo seletivo da pagar.me ([veja aqui]
 **Componentes**
 ![Components](docs/components.png)
 
+## Bibliotecas e Frameworks
+TODO
+
 ## Uso
 TO DO
 
