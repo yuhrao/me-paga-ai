@@ -1,0 +1,41 @@
+openapi: 3.0.3
+info:
+  title: Me paga aí
+  version: v1.0.0
+  description: API para processar transações e recebíveis
+paths:
+  /api/v1/transactions:
+    post:
+      summary: Processa nova transação
+      description: ''
+      operationId: create_transaction
+      responses:
+        default:
+          description: Default error sample response
+      tags:
+        - Transações
+    get:
+      summary: Obtém lista de transações
+      operationId: list_transactions
+      responses:
+        '200':
+          description: Listagem realizada com sucesso
+      tags:
+        - Transações
+  /api/v1/balances:
+    summary: Lista saldos
+    get:
+      summary: Obtém saldo disponível e a receber
+      description: ''
+      operationId: list_balances
+      responses:
+        default:
+          description: Default error sample response
+      tags:
+        - Saldo
+
+tags:
+  - name: Transações
+    description: Operações relacionadas à transações
+  - name: Saldo
+    description: Operações relacionadas ao saldo
