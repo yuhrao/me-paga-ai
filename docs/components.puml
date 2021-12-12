@@ -1,0 +1,35 @@
+@startuml components
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Container.puml
+
+!define DEVICONS https://raw.githubusercontent.com/tupadr3/plantuml-icon-font-sprites/master/devicons
+!include DEVICONS/clojure.puml
+
+Person(customer, "Clientes", "Detentor da conta de pagamento para vendas")
+System(spe, "Sistema de Pagamentos Externo", "Estabelecimento comercial que realizou a venda")
+ContainerDb(transactions_db, "Armazenamento de dados", "", "Armazena dados de transações e taxas")
+
+System_Boundary(processor, "Processador de Pagamentos"){
+        Container(rest, "Interface de comunicação", "Jetty", "Recebe requisições HTTP, validando-as e direcionando para o devido processo", $sprite=clojure)
+        Container(transactions, "Processador de transações", "Clojure", "Processa e persiste as transações de cash-in aplicando as devidas taxas", $sprite=clojure)
+        Container(fees, "Processador de tarifas", "Clojure", "Define as taxas a serem aplicadas dependendo do tipo de transação",$sprite=clojure)
+        Container(balance,"Processador de saldos", "Clojure","Sumariza as transações afim de obter os saldo disponível e a receber" ,$sprite=clojure)
+        Container(tx_list, "Listador de transações", "Clojure","Realiza obtenção das transações do cliente", $sprite=clojure)
+}
+
+' Processa transações aplicando taxas
+Rel_R(spe, rest, "Envia transação para processamento em", "HTTP")
+Rel_D(rest, transactions, "Envia transação para processamento em", "Function Call")
+Rel_D(transactions, fees, "Define tarifas para transação", "Function Call")
+Rel_R(transactions, transactions_db, "Armazena dados da transação com as devidas tarifas")
+
+' Obtém saldos
+Rel_L(customer, rest, "Solicita lista de transações em", "HTTP")
+Rel_D(rest, balance, "Obtém saldo do cliente em", "Function Call")
+Rel_D(balance, transactions_db, "Sumariza sados a partir das transações do cliente em", "Function Call")
+
+' Lista transações
+Rel_L(customer, rest, "Solicita transações em", "HTTP")
+Rel_D(rest, tx_list, "Obtém transações do cliente em", "Function Call")
+Rel_D(tx_list, transactions_db, "Busca transações do cliente em", "Function Call")
+
+@enduml

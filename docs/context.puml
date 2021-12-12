@@ -1,0 +1,21 @@
+@startuml context
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Container.puml
+!define DEVICONS https://raw.githubusercontent.com/tupadr3/plantuml-icon-font-sprites/master/devicons
+!include DEVICONS/clojure.puml
+
+Person(customer, "Clientes", "Detentor da conta de pagamento para vendas")
+System(spe, "Sistema de Pagamentos Externo", "Estabelecimento comercial que realizou a venda")
+
+
+System(processor, "Processador de Pagamentos","Aplicação responsável por processar pagamentos e aplicar taxas", $sprite=clojure)
+ContainerDb(transactions_db, "Armazenamento de dados", "", "Armazena dados de transações e taxas")
+
+Rel_R(spe, processor, "Envia transação para processamento em", "HTTP")
+
+Rel_D(processor, transactions_db, "Persiste dados de transação e taxas em")
+Rel_D(processor, transactions_db, "Consulta transações e taxas em")
+
+Rel_L(customer, processor, "Consulta saldo disponível e a receber", "HTTP")
+Rel_L(customer, processor, "Consulta lista de transações", "HTTP")
+
+@enduml
