@@ -22,7 +22,7 @@ TO DO
 ## Opções
 TO DO
 
-## Examplos
+## Exemplos
 TO DO
 
 ### Bugs
