@@ -1,0 +1,26 @@
+@startuml container
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Container.puml
+
+!define DEVICONS https://raw.githubusercontent.com/tupadr3/plantuml-icon-font-sprites/master/devicons
+!include DEVICONS/clojure.puml
+!include DEVICONS/postgresql.puml
+
+AddElementTag("external", $borderColor="#595959", $bgColor="#595959")
+
+Person(customer, "Clientes", "Detentor da conta de pagamento para vendas")
+System(spe, "Sistema de Pagamentos Externo", "Estabelecimento comercial que realizou a venda", $tags="external")
+
+System_Boundary(processor, "Processador de Pagamentos"){
+        Container(payment_service, "Operador transacional", "Clojure", "Processa operações de cash-in e cash-out, paga recebíveis, aplica taxas e disponbiliza transações e saldo para consulta", $sprite=clojure)
+        ContainerDb(transactions_db, "Armazenamento de dados", "Postgres", "Armazena dados de transações e taxas", $sprite=postgresql)
+}
+
+' Processa transações aplicando taxas
+Rel_R(spe, payment_service, "Envia transação para processamento em", "HTTP")
+Rel_D(payment_service, transactions_db, "Armazena e recupera dados da transação com as devidas tarifas em")
+
+' Obtém saldos
+Rel_L(customer, payment_service, "Solicita lista de transações e saldo em", "HTTP")
+
+
+@enduml
