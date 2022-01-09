@@ -5,13 +5,13 @@ Solução de pagamentos proposta pelo processo seletivo da pagar.me ([veja aqui]
 ## Diagramas
 **Sistema**
 
-![System](docs/system.png)
+![System](docs/images/system.png)
 
 **Container**
-![Container](docs/container.png)
+![Container](docs/images/container.png)
 
 **Componente**
-![Component](docs/component.png)
+![Component](docs/images/component.png)
 
 ## Bibliotecas e Frameworks
 TODO
