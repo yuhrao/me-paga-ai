@@ -11,3 +11,5 @@ pom.xml.asc
 /.prepl-port
 /.lsp
 **/*.tmp
+.clj-kondo/.cache
+.dir-locals.el
