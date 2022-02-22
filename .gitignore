@@ -13,3 +13,4 @@ pom.xml.asc
 **/*.tmp
 .clj-kondo/.cache
 .dir-locals.el
+.cpcache
