@@ -37,6 +37,21 @@ TO DO
 ### Bugs
 TO DO
 
+## Ambiente de desenvolvimento
+
+### Aliases
+Deve-se adicionar os aliases para:
+- `test`
+
+Se você usa o Emacs como editor de código, é recomendado ter um arquivo `.dir-locals.el` na raiz do projeto com o seguinte conteúdo:
+
+``` emacs-lisp
+((clojure-mode
+  (cider-clojure-cli-global-options . "-A:test")))
+```
+
+`
+
 ### Contribuidores
 
 [Yuhri Bernardes][yuhri-profile] | [Rafael Dias][rafael-profile]
