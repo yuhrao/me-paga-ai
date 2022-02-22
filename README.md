@@ -26,7 +26,9 @@ Solução de pagamentos proposta pelo processo seletivo da pagar.me ([veja aqui]
 - [Kaocha][kaocha]: Runtime de testes pra clojure
 
 ## Uso
-TO DO
+
+### Testes
+- All tests: `clj -M:test -X:test-all`
 
 ## Opções
 TO DO

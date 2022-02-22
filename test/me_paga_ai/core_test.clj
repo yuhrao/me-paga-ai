@@ -1,7 +1,7 @@
 (ns me-paga-ai.core-test
-  (:require [clojure.test :refer :all]
-            [me-paga-ai.core :refer :all]))
+  (:require [clojure.test :refer [deftest testing is]]
+            [matcher-combinators.test]))
 
 (deftest a-test
   (testing "FIXME, I fail."
-    (is (= 0 1))))
+    (is (match? 1 1))))

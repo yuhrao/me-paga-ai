@@ -2,4 +2,6 @@
  :deps {org.clojure/clojure {:mvn/version "1.10.3"}}
  :aliases
  {:test {:extra-paths ["test"]
-         :extra-deps {lambdaisland/kaocha {:mvn/version "1.62.993"}}}}}
+         :extra-deps {lambdaisland/kaocha {:mvn/version "1.62.993"}
+                      nubank/matcher-combinators {:mvn/version "3.3.1"}}}
+  :test-all {:exec-fn kaocha.runner/exec-fn}}}
