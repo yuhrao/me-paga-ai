@@ -52,8 +52,6 @@ Se você usa o Emacs como editor de código, é recomendado ter um arquivo `.dir
   (cider-clojure-cli-global-options . "-A:test")))
 ```
 
-`
-
 ### Contribuidores
 
 [Yuhri Bernardes][yuhri-profile] | [Rafael Dias][rafael-profile]
