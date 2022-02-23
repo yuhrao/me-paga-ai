@@ -126,3 +126,42 @@
         "anything"        :type)))
   (testing "Should return nil when transaction is valid"
     (is (match? nil (transaction/validate valid-transaction)))))
+
+(deftest create
+  (testing "Return error wher receivind an invalid transaction"
+    (are [transaction]
+        (match? {:error
+                 {:message "Invalid transaction."
+                  :data map?}}
+                (transaction/create transaction))
+      (dissoc valid-transaction :amount)
+      (dissoc valid-transaction :card)
+      (dissoc valid-transaction :method)))
+  (testing "Return the entity with generated fields for credit card transaction"
+    (is
+     (match? {:amount           decimal?
+              :method           :credit-card
+              :card             {:number        string?
+                                 :holder-name   string?
+                                 :security-code number?
+                                 :due-date      tick/date-time?}
+              :transaction_date tick/date-time?
+              :created_at       tick/date-time?
+              :updated_at       tick/date-time}
+                (-> valid-transaction
+                    (assoc :method :credit-card)
+                    transaction/create))))
+  (testing "Return the entity with generated fields for debit card transaction"
+    (is
+     (match? {:amount           decimal?
+              :method           :debit-card
+              :card             {:number        string?
+                                 :holder-name   string?
+                                 :security-code number?
+                                 :due-date      tick/date-time?}
+              :transaction_date tick/date-time?
+              :created_at       tick/date-time?
+              :updated_at       tick/date-time}
+                (-> valid-transaction
+                    (assoc :method :debit-card)
+                    transaction/create)))))
