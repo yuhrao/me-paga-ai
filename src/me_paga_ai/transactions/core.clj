@@ -14,14 +14,13 @@
                         (malli/explain tx-schema/Transaction)
                         (malli-err/humanize))}}))
 
-
-(defn create [transaction]
+(defn create [{:keys [method] :as transaction}]
   (if-let [error (validate transaction)]
     error
     (let [now (tick/date-time)]
       (-> transaction
           (assoc
            :id (UUID/randomUUID)
-           :transaction_date now
-           :created_at now
-           :updated_at now)))))
+           :transaction-date now
+           :created-at now
+           :updated-at now)))))

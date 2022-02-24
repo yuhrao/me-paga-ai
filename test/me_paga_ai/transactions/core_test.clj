@@ -165,3 +165,51 @@
                 (-> valid-transaction
                     (assoc :method :debit-card)
                     transaction/create)))))
+
+(deftest create
+  (testing "Create credit card transaction"
+    (let [request                     (-> valid-transaction
+                                        (assoc :method :credit-card))
+          start-timestamp             (tick/date-time)
+          {:keys [created-at
+                  transaction-date
+                  updated-at]
+           :as   created-transaction} (transaction/create request)]
+      (is (match? (merge
+                   request
+                   {:id               uuid?
+                    :transaction-date tick/date-time?
+                    :created-at       tick/date-time?
+                    :updated-at       tick/date-time?})
+                  created-transaction)
+          "should create a transaction with valid structure")
+      (is (tick/> (tick/date-time)
+                  created-at
+                  start-timestamp)
+          "should have create date setted for now")
+      (is (tick/= created-at updated-at)
+          "should have create date setted for now")))
+
+  (testing "Create debit card transaction"
+    (testing "Create credit card transaction"
+      (let [request                     (-> valid-transaction
+                                          (assoc :method :debit-card))
+            start-timestamp             (tick/date-time)
+            {:keys [created-at
+                    transaction-date
+                    updated-at]
+             :as   created-transaction} (transaction/create request)]
+      (is (match? (merge
+                   request
+                   {:id               uuid?
+                    :transaction-date tick/date-time?
+                    :created-at       tick/date-time?
+                    :updated-at       tick/date-time?})
+                  created-transaction)
+          "should create a transaction with valid structure")
+      (is (tick/> (tick/date-time)
+                  created-at
+                  start-timestamp)
+          "should have create date setted for now")
+      (is (tick/= created-at updated-at)
+          "should have create date setted for now")))))
