@@ -4,7 +4,12 @@
             [matcher-combinators.test]
             [matcher-combinators.matchers :as matchers]
             [medley.core :as medley]
-            [clojure.test :refer [deftest testing are is]]))
+            [clojure.test :refer [deftest testing are is]]
+            [database.datascript.core :as mem-db]
+            [database.core :as db]))
+
+(defn create-context []
+  {:repo (mem-db/->MemoryDatabase)})
 
 (def valid-transaction
   {:amount (bigdec 12)
@@ -133,83 +138,64 @@
         (match? {:error
                  {:message "Invalid transaction."
                   :data map?}}
-                (transaction/create transaction))
+                (transaction/create (create-context) transaction))
       (dissoc valid-transaction :amount)
       (dissoc valid-transaction :card)
       (dissoc valid-transaction :method)))
+
   (testing "Return the entity with generated fields for credit card transaction"
-    (is
-     (match? {:amount           decimal?
-              :method           :credit-card
-              :card             {:number        string?
-                                 :holder-name   string?
-                                 :security-code number?
-                                 :due-date      tick/date-time?}
-              :transaction_date tick/date-time?
-              :created_at       tick/date-time?
-              :updated_at       tick/date-time}
-                (-> valid-transaction
-                    (assoc :method :credit-card)
-                    transaction/create))))
+    (let [ctx                                     (create-context)
+          request                                 (-> valid-transaction
+                                          (assoc :method :credit-card))
+          start-timestamp                         (tick/date-time)
+          {:transaction/keys [created-at
+                              transaction-date
+                              updated-at]
+           :as               created-transaction} (transaction/create ctx request)]
+      (is
+       (match? {:transaction/amount           (:amount request)
+                :transaction/method           :credit-card
+                :transaction/card             {:card/number        (-> request :card :number)
+                                               :card/holder-name   (-> request :card :holder-name)
+                                               :card/security-code (-> request :card :security-code)
+                                               :card/due-date      tick/date-time?}
+                :transaction/transaction-date tick/date-time?
+                :transaction/created-at       tick/date-time?
+                :transaction/updated-at       tick/date-time}
+               created-transaction)
+       "should return a valid transaction entity with requested values")
+      (is (tick/> (tick/date-time)
+                  created-at
+                  start-timestamp)
+          "should have creation date setted for now")
+      (is (tick/= created-at updated-at)
+          "should have last update date setted for the same value as creation date")))
+
   (testing "Return the entity with generated fields for debit card transaction"
-    (is
-     (match? {:amount           decimal?
-              :method           :debit-card
-              :card             {:number        string?
-                                 :holder-name   string?
-                                 :security-code number?
-                                 :due-date      tick/date-time?}
-              :transaction_date tick/date-time?
-              :created_at       tick/date-time?
-              :updated_at       tick/date-time}
-                (-> valid-transaction
-                    (assoc :method :debit-card)
-                    transaction/create)))))
-
-(deftest create
-  (testing "Create credit card transaction"
-    (let [request                     (-> valid-transaction
-                                        (assoc :method :credit-card))
-          start-timestamp             (tick/date-time)
-          {:keys [created-at
-                  transaction-date
-                  updated-at]
-           :as   created-transaction} (transaction/create request)]
-      (is (match? (merge
-                   request
-                   {:id               uuid?
-                    :transaction-date tick/date-time?
-                    :created-at       tick/date-time?
-                    :updated-at       tick/date-time?})
-                  created-transaction)
-          "should create a transaction with valid structure")
-      (is (tick/> (tick/date-time)
-                  created-at
-                  start-timestamp)
-          "should have create date setted for now")
-      (is (tick/= created-at updated-at)
-          "should have create date setted for now")))
-
-  (testing "Create debit card transaction"
-    (testing "Create credit card transaction"
-      (let [request                     (-> valid-transaction
+    (let [ctx                         (create-context)
+          request                     (-> valid-transaction
                                           (assoc :method :debit-card))
-            start-timestamp             (tick/date-time)
-            {:keys [created-at
-                    transaction-date
-                    updated-at]
-             :as   created-transaction} (transaction/create request)]
-      (is (match? (merge
-                   request
-                   {:id               uuid?
-                    :transaction-date tick/date-time?
-                    :created-at       tick/date-time?
-                    :updated-at       tick/date-time?})
-                  created-transaction)
-          "should create a transaction with valid structure")
+          start-timestamp             (tick/date-time)
+          {:transaction/keys [created-at
+                              transaction-date
+                              updated-at]
+           :as               created-transaction} (transaction/create ctx request)]
+      (is
+       (match? #:transaction
+               {:amount           (:amount request)
+                :method           :debit-card
+                :card             #:card{:number        (-> request :card :number)
+                                         :holder-name   (-> request :card :holder-name)
+                                         :security-code (-> request :card :security-code)
+                                         :due-date      tick/date-time?}
+                :transaction-date tick/date-time?
+                :created-at       tick/date-time?
+                :updated-at       tick/date-time}
+               created-transaction)
+       "should return a valid transaction entity with requested values")
       (is (tick/> (tick/date-time)
                   created-at
                   start-timestamp)
-          "should have create date setted for now")
+          "should have creation date setted for now")
       (is (tick/= created-at updated-at)
-          "should have create date setted for now")))))
+          "should have last update date setted for the same value as creation date"))))
